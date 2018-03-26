@@ -174,6 +174,8 @@ def _update_parameters(s_min, s_max, start0, end0, start1, end1):
             return s, s_max
 
         elif _helpers.in_interval(s, s_max, 1.0):
+            # THIS IS A FAIL BECAUSE IT WON'T GIVE THE "OLD" ``s_min``
+            # TO ``s_max``.
             return s_min, s
 
     return s_min, s_max
@@ -248,25 +250,28 @@ def clip_range(nodes1, nodes2):
     coeff_a, coeff_b, coeff_c, d_min, d_max = compute_fat_line(nodes1)
     # NOTE: This assumes, but does not check, that there are two rows.
     _, num_nodes2 = nodes2.shape
+    degree = num_nodes2 - 1
+    # NOTE: We actually use ``degree * polynomial`` to avoid forming
+    #       ``j / d`` for all possible numerators ``j``.
     polynomial = np.empty((2, num_nodes2), order='F')
-    denominator = float(num_nodes2 - 1)
     for index in six.moves.xrange(num_nodes2):
-        polynomial[0, index] = index / denominator
-        polynomial[1, index] = (
+        polynomial[0, index] = index
+        polynomial[1, index] = degree * (
             coeff_a * nodes2[0, index] + coeff_b * nodes2[1, index] + coeff_c
         )
     # Define segments for the top and the bottom of the region
     # bounded by the fat line.
-    start_bottom = np.asfortranarray([0.0, d_min])
-    end_bottom = np.asfortranarray([1.0, d_min])
-    start_top = np.asfortranarray([0.0, d_max])
-    end_top = np.asfortranarray([1.0, d_max])
+    start_bottom = np.asfortranarray([0.0, degree * d_min])
+    end_bottom = np.asfortranarray([degree, degree * d_min])
+    start_top = np.asfortranarray([0.0, degree * d_max])
+    end_top = np.asfortranarray([degree, degree * d_max])
+
     s_min = DEFAULT_S_MIN
     s_max = DEFAULT_S_MAX
     # NOTE: We avoid computing the convex hull and just compute where
     #       all segments connecting two control points intersect the
     #       fat lines.
-    for start_index in six.moves.xrange(num_nodes2 - 1):
+    for start_index in six.moves.xrange(degree):
         for end_index in six.moves.xrange(start_index + 1, num_nodes2):
             s_min, s_max = _update_parameters(
                 s_min,
