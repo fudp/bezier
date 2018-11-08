@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.1)
 
-project(MyProject VERSION 0.9.0
-                  DESCRIPTION "Library for Bezier curves and triangles"
-                  LANGUAGES Fortran C)
+project(bezier VERSION 0.9.0
+               DESCRIPTION "Library for Bezier curves and triangles"
+               LANGUAGES Fortran C)
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
   if(NOT CCMAKE_Fortran_FLAGS MATCHES "-O3")
