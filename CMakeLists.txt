@@ -4,7 +4,13 @@ project(MyProject VERSION 0.9.0
                   DESCRIPTION "Library for Bezier curves and triangles"
                   LANGUAGES Fortran C)
 
-SET(CMAKE_Fortran_FLAGS "-O3")
+if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
+  SET(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -O3")
+elseif(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
+  SET(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fast")
+else()
+  message(FATAL_ERROR "gfortran and ifort are the only supported compilers")
+endif()
 
 add_library(quadpack src/bezier/quadpack/d1mach.f src/bezier/quadpack/dqelg.f src/bezier/quadpack/dqpsrt.f src/bezier/quadpack/dqk21.f src/bezier/quadpack/dqagse.f)
 
