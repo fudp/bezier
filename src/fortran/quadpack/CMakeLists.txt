@@ -1,13 +1,14 @@
 cmake_minimum_required(VERSION 3.1)
 
 project(
-  quadpack
-  DESCRIPTION "QUADPACK is a FORTRAN 77 library for numerical integration of one-dimensional functions."
-  LANGUAGES Fortran
-)
+  quadpack DESCRIPTION
+  "QUADPACK is a FORTRAN 77 library for numerical integration of one-dimensional functions."
+  LANGUAGES Fortran)
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
+
 elseif(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
+
 else()
   message(FATAL_ERROR "gfortran and ifort are the only supported compilers")
 endif()
