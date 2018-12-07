@@ -20,7 +20,9 @@ if(${BUILD_SHARED_LIBS})
                         PROPERTIES VERSION
                                    ${bezier_VERSION}
                                    SOVERSION
-                                   ${bezier_VERSION})
+                                   ${bezier_VERSION}
+                                   POSITION_INDEPENDENT_CODE
+                                   ON)
 endif()
 
 target_link_libraries(bezier PRIVATE quadpack)
