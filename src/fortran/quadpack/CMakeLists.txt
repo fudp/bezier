@@ -4,11 +4,7 @@ project(quadpack DESCRIPTION
         "Library for numerical integration of one-dimensional functions."
         LANGUAGES Fortran)
 
-if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
-
-elseif(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
-
-else()
+if(NOT CMAKE_Fortran_COMPILER_ID MATCHES "(GNU|Intel)")
   message(FATAL_ERROR "gfortran and ifort are the only supported compilers")
 endif()
 

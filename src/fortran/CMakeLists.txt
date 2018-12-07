@@ -4,11 +4,7 @@ project(bezier
         VERSION 0.9.0 DESCRIPTION "Library for Bezier curves and triangles"
         LANGUAGES Fortran C)
 
-if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
-
-elseif(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
-
-else()
+if(NOT CMAKE_Fortran_COMPILER_ID MATCHES "(GNU|Intel)")
   message(FATAL_ERROR "gfortran and ifort are the only supported compilers")
 endif()
 
