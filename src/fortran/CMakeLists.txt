@@ -7,9 +7,22 @@ set(DESCRIPTION "Library for Bezier curves and triangles.")
 
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 
-if(NOT CMAKE_Fortran_COMPILER_ID MATCHES "(GNU|Intel)")
+if(NOT CMAKE_Fortran_COMPILER_ID MATCHES "^(GNU|Intel)$")
   message(FATAL_ERROR "gfortran and ifort are the only supported compilers")
 endif()
+
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
+endif()
+
+if(NOT CMAKE_BUILD_TYPE MATCHES "^(Debug|Release)$")
+  message(FATAL_ERROR "Debug and Release are the only supported build types")
+endif()
+
+# Unset all Fortran flags (instead rely on our flags).
+set(CMAKE_Fortran_FLAGS "")
+set(CMAKE_Fortran_FLAGS_DEBUG "")
+set(CMAKE_Fortran_FLAGS_RELEASE "")
 
 add_subdirectory(quadpack)
 
@@ -28,19 +41,33 @@ endif()
 target_include_directories(bezier PUBLIC include)
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
+  # ``-Wextra`` includes ``no-compare-reals``, but we have comparisons like
+  # ``value == 0.0_dp``.
   target_compile_options(bezier
-                         PRIVATE -Wall
-                                 -fno-second-underscore
+                         PRIVATE -fno-second-underscore
+                                 -Wall
                                  -Wextra
                                  -Wno-compare-reals
                                  -Wimplicit-interface
                                  -fmax-errors=1
-                                 -std=f2008
-                                 -Werror
-                                 -march=native)
-  target_compile_options(bezier PUBLIC -O3 -funroll-loops)
+                                 -std=f2008)
+  if(CMAKE_BUILD_TYPE MATCHES "^Debug$")
+    target_compile_options(bezier
+                           PRIVATE -fcheck=all
+                                   -fbacktrace
+                                   -fimplicit-none
+                                   -pedantic)
+    target_compile_options(bezier PUBLIC -g)
+  else()
+    target_compile_options(bezier PRIVATE -Werror -march=native)
+    target_compile_options(bezier PUBLIC -DNDEBUG -O3 -funroll-loops)
+  endif()
 elseif(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
-  target_compile_options(bezier PUBLIC -fast)
+  if(CMAKE_BUILD_TYPE MATCHES "^Debug$")
+
+  else()
+    target_compile_options(bezier PUBLIC -fast)
+  endif()
 else()
   message(FATAL_ERROR "gfortran and ifort are the only supported compilers")
 endif()

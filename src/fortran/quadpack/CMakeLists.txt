@@ -4,27 +4,58 @@ project(quadpack DESCRIPTION
         "Library for numerical integration of one-dimensional functions."
         LANGUAGES Fortran)
 
-if(NOT CMAKE_Fortran_COMPILER_ID MATCHES "(GNU|Intel)")
+if(NOT CMAKE_Fortran_COMPILER_ID MATCHES "^(GNU|Intel)$")
   message(FATAL_ERROR "gfortran and ifort are the only supported compilers")
 endif()
+
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
+endif()
+
+if(NOT CMAKE_BUILD_TYPE MATCHES "^(Debug|Release)$")
+  message(FATAL_ERROR "Debug and Release are the only supported build types")
+endif()
+
+# Unset all Fortran flags (instead rely on our flags).
+set(CMAKE_Fortran_FLAGS "")
+set(CMAKE_Fortran_FLAGS_DEBUG "")
+set(CMAKE_Fortran_FLAGS_RELEASE "")
 
 file(GLOB SOURCES *.f)
 add_library(quadpack OBJECT ${SOURCES})
 set_target_properties(quadpack PROPERTIES Fortran_FORMAT "FIXED")
+if(${BUILD_SHARED_LIBS})
+  set_target_properties(quadpack PROPERTIES POSITION_INDEPENDENT_CODE ON)
+endif()
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
+  # ``-Wextra`` includes ``no-compare-reals``, but we have comparisons like
+  # ``value == 0.0_dp``.
   target_compile_options(quadpack
-                         PRIVATE -Wall
-                                 -fno-second-underscore
+                         PRIVATE -fno-second-underscore
+                                 -Wall
                                  -Wextra
                                  -Wno-compare-reals
                                  -Wimplicit-interface
                                  -fmax-errors=1
-                                 -std=f2008
-                                 -march=native)
-  target_compile_options(quadpack PUBLIC -O3 -funroll-loops)
+                                 -std=f2008)
+  if(CMAKE_BUILD_TYPE MATCHES "^Debug$")
+    target_compile_options(quadpack
+                           PRIVATE -fcheck=all
+                                   -fbacktrace
+                                   -fimplicit-none
+                                   -pedantic)
+    target_compile_options(quadpack PUBLIC -g)
+  else()
+    target_compile_options(quadpack PRIVATE -march=native)
+    target_compile_options(quadpack PUBLIC -DNDEBUG -O3 -funroll-loops)
+  endif()
 elseif(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
-  target_compile_options(quadpack PUBLIC -fast)
+  if(CMAKE_BUILD_TYPE MATCHES "^Debug$")
+
+  else()
+    target_compile_options(quadpack PUBLIC -fast)
+  endif()
 else()
   message(FATAL_ERROR "gfortran and ifort are the only supported compilers")
 endif()
