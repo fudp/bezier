@@ -13,10 +13,12 @@ else()
   message(FATAL_ERROR "gfortran and ifort are the only supported compilers")
 endif()
 
-add_library(quadpack quadpack/d1mach.f quadpack/dqelg.f quadpack/dqpsrt.f quadpack/dqk21.f quadpack/dqagse.f)
+file(GLOB SOURCES quadpack/*.f)
+add_library(quadpack ${SOURCES})
 set_target_properties(quadpack PROPERTIES Fortran_FORMAT "FIXED")
 
-add_library(bezier types.f90 status.f90 helpers.f90 curve.f90 surface.f90 curve_intersection.f90 surface_intersection.f90)
+file(GLOB SOURCES *.f90)
+add_library(bezier ${SOURCES})
 target_link_libraries(bezier PRIVATE quadpack)
 target_include_directories(bezier PUBLIC include)
 

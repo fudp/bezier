@@ -12,7 +12,8 @@ else()
   message(FATAL_ERROR "gfortran and ifort are the only supported compilers")
 endif()
 
-add_library(quadpack d1mach.f dqelg.f dqpsrt.f dqk21.f dqagse.f)
+file(GLOB SOURCES *.f)
+add_library(quadpack ${SOURCES})
 set_target_properties(quadpack PROPERTIES Fortran_FORMAT "FIXED")
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
