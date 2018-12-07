@@ -9,17 +9,8 @@ if(NOT CMAKE_Fortran_COMPILER_ID MATCHES "(GNU|Intel)")
 endif()
 
 file(GLOB SOURCES *.f)
-add_library(quadpack ${SOURCES})
+add_library(quadpack OBJECT ${SOURCES})
 set_target_properties(quadpack PROPERTIES Fortran_FORMAT "FIXED")
-if(${BUILD_SHARED_LIBS})
-  set_target_properties(quadpack
-                        PROPERTIES VERSION
-                                   "0.0.1"
-                                   SOVERSION
-                                   "0.0.1"
-                                   POSITION_INDEPENDENT_CODE
-                                   ON)
-endif()
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
   target_compile_options(quadpack

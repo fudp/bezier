@@ -14,7 +14,7 @@ endif()
 add_subdirectory(quadpack)
 
 file(GLOB SOURCES *.f90)
-add_library(bezier ${SOURCES})
+add_library(bezier ${SOURCES} $<TARGET_OBJECTS:quadpack>)
 if(${BUILD_SHARED_LIBS})
   set_target_properties(bezier
                         PROPERTIES VERSION
@@ -25,7 +25,6 @@ if(${BUILD_SHARED_LIBS})
                                    ON)
 endif()
 
-target_link_libraries(bezier PRIVATE quadpack)
 target_include_directories(bezier PUBLIC include)
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
