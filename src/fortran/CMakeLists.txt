@@ -10,12 +10,12 @@ else()
   message(FATAL_ERROR "gfortran and ifort are the only supported compilers")
 endif()
 
-add_library(quadpack src/python/bezier/quadpack/d1mach.f src/python/bezier/quadpack/dqelg.f src/python/bezier/quadpack/dqpsrt.f src/python/bezier/quadpack/dqk21.f src/python/bezier/quadpack/dqagse.f)
+add_library(quadpack quadpack/d1mach.f quadpack/dqelg.f quadpack/dqpsrt.f quadpack/dqk21.f quadpack/dqagse.f)
 set_target_properties(quadpack PROPERTIES Fortran_FORMAT "FIXED")
 
-add_library(bezier src/python/bezier/types.f90 src/python/bezier/status.f90 src/python/bezier/helpers.f90 src/python/bezier/curve.f90 src/python/bezier/surface.f90 src/python/bezier/curve_intersection.f90 src/python/bezier/surface_intersection.f90)
+add_library(bezier types.f90 status.f90 helpers.f90 curve.f90 surface.f90 curve_intersection.f90 surface_intersection.f90)
 target_link_libraries(bezier PRIVATE quadpack)
-target_include_directories(bezier PUBLIC src/python/bezier/include)
+target_include_directories(bezier PUBLIC include)
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
   target_compile_options(quadpack PRIVATE -Wall -fno-second-underscore)
