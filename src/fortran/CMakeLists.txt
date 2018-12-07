@@ -20,6 +20,9 @@ if(NOT CMAKE_BUILD_TYPE MATCHES "^(Debug|Release)$")
 endif()
 
 # Unset all Fortran flags (instead rely on our flags).
+set(OLD_CMAKE_Fortran_FLAGS ${CMAKE_Fortran_FLAGS})
+set(OLD_CMAKE_Fortran_FLAGS_DEBUG ${CMAKE_Fortran_FLAGS_DEBUG})
+set(OLD_CMAKE_Fortran_FLAGS_RELEASE ${CMAKE_Fortran_FLAGS_RELEASE})
 set(CMAKE_Fortran_FLAGS "")
 set(CMAKE_Fortran_FLAGS_DEBUG "")
 set(CMAKE_Fortran_FLAGS_RELEASE "")
@@ -28,6 +31,8 @@ add_subdirectory(quadpack)
 
 file(GLOB SOURCES *.f90)
 add_library(bezier ${SOURCES} $<TARGET_OBJECTS:quadpack>)
+unset(SOURCES)
+
 if(${BUILD_SHARED_LIBS})
   set_target_properties(bezier
                         PROPERTIES VERSION
@@ -72,3 +77,11 @@ elseif(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
 else()
   message(FATAL_ERROR "gfortran and ifort are the only supported compilers")
 endif()
+
+# Restore all Fortran flags.
+set(CMAKE_Fortran_FLAGS ${OLD_CMAKE_Fortran_FLAGS})
+set(CMAKE_Fortran_FLAGS_DEBUG ${OLD_CMAKE_Fortran_FLAGS_DEBUG})
+set(CMAKE_Fortran_FLAGS_RELEASE ${OLD_CMAKE_Fortran_FLAGS_RELEASE})
+unset(OLD_CMAKE_Fortran_FLAGS)
+unset(OLD_CMAKE_Fortran_FLAGS_DEBUG)
+unset(OLD_CMAKE_Fortran_FLAGS_RELEASE)

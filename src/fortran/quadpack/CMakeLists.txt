@@ -17,12 +17,17 @@ if(NOT CMAKE_BUILD_TYPE MATCHES "^(Debug|Release)$")
 endif()
 
 # Unset all Fortran flags (instead rely on our flags).
+set(OLD_CMAKE_Fortran_FLAGS ${CMAKE_Fortran_FLAGS})
+set(OLD_CMAKE_Fortran_FLAGS_DEBUG ${CMAKE_Fortran_FLAGS_DEBUG})
+set(OLD_CMAKE_Fortran_FLAGS_RELEASE ${CMAKE_Fortran_FLAGS_RELEASE})
 set(CMAKE_Fortran_FLAGS "")
 set(CMAKE_Fortran_FLAGS_DEBUG "")
 set(CMAKE_Fortran_FLAGS_RELEASE "")
 
 file(GLOB SOURCES *.f)
 add_library(quadpack OBJECT ${SOURCES})
+unset(SOURCES)
+
 set_target_properties(quadpack PROPERTIES Fortran_FORMAT "FIXED")
 if(${BUILD_SHARED_LIBS})
   set_target_properties(quadpack PROPERTIES POSITION_INDEPENDENT_CODE ON)
@@ -60,3 +65,11 @@ elseif(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
 else()
   message(FATAL_ERROR "gfortran and ifort are the only supported compilers")
 endif()
+
+# Restore all Fortran flags.
+set(CMAKE_Fortran_FLAGS ${OLD_CMAKE_Fortran_FLAGS})
+set(CMAKE_Fortran_FLAGS_DEBUG ${OLD_CMAKE_Fortran_FLAGS_DEBUG})
+set(CMAKE_Fortran_FLAGS_RELEASE ${OLD_CMAKE_Fortran_FLAGS_RELEASE})
+unset(OLD_CMAKE_Fortran_FLAGS)
+unset(OLD_CMAKE_Fortran_FLAGS_DEBUG)
+unset(OLD_CMAKE_Fortran_FLAGS_RELEASE)
