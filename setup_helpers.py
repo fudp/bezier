@@ -73,7 +73,9 @@ useful, for example, to track changes across different systems or simple
 to make sure the build is occurring as expected.
 """
 QUADPACK_DIR = "quadpack"
-QUADPACK_SOURCE_FILENAME = os.path.join("src", "bezier", QUADPACK_DIR, "{}.f")
+QUADPACK_SOURCE_FILENAME = os.path.join(
+    "src", "python", "bezier", QUADPACK_DIR, "{}.f"
+)
 # NOTE: QUADPACK module dependencies: order is important.
 QUADPACK_MODULES = ("d1mach", "dqelg", "dqpsrt", "dqk21", "dqagse")
 # NOTE: This represents the Fortran module dependency graph. Order is
@@ -88,9 +90,9 @@ FORTRAN_MODULES = (
     "curve_intersection",
     "surface_intersection",
 )
-FORTRAN_SOURCE_FILENAME = os.path.join("src", "bezier", "{}.f90")
-OBJECT_FILENAME = os.path.join("src", "bezier", "{}.o")
-SPEEDUP_FILENAME = os.path.join("src", "bezier", "_speedup.c")
+FORTRAN_SOURCE_FILENAME = os.path.join("src", "python", "bezier", "{}.f90")
+OBJECT_FILENAME = os.path.join("src", "python", "bezier", "{}.o")
+SPEEDUP_FILENAME = os.path.join("src", "python", "bezier", "_speedup.c")
 
 
 def gfortran_search_path(library_dirs):
@@ -167,7 +169,7 @@ def extension_modules():
         extra_objects=extra_objects,
         include_dirs=[
             np.get_include(),
-            os.path.join("src", "bezier", "include"),
+            os.path.join("src", "python", "bezier", "include"),
         ],
         libraries=copy.deepcopy(libraries),
         library_dirs=copy.deepcopy(library_dirs),
@@ -442,7 +444,7 @@ class BuildFortranThenExt(setuptools.command.build_ext.build_ext):
 
         shutil.move(
             os.path.join(self.build_lib, "bezier", "lib"),
-            os.path.join("src", "bezier"),
+            os.path.join("src", "python", "bezier"),
         )
 
     def cleanup(self):

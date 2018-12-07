@@ -118,11 +118,11 @@ def update_generated(session, check):
     if check:
         command = get_path("scripts", "remove_cython_files.py")
         session.run("python", command)
-    pyx_glob = get_path("src", "bezier", "*.pyx")
+    pyx_glob = get_path("src", "python", "bezier", "*.pyx")
     for pyx_module in glob.glob(pyx_glob):
         session.run("cython", pyx_module)
     command = get_path("scripts", "clean_cython.py")
-    c_glob = get_path("src", "bezier", "*.c")
+    c_glob = get_path("src", "python", "bezier", "*.c")
     for c_source in glob.glob(c_glob):
         session.run(
             "python",
@@ -300,7 +300,7 @@ def lint(session):
         "flake8",
         "--import-order-style=google",
         "--application-import-names=bezier,tests",
-        get_path("src", "bezier"),
+        get_path("src", "python", "bezier"),
         get_path("tests"),
     )
     # Run Pylint over the library source.
@@ -309,7 +309,7 @@ def lint(session):
         "--rcfile",
         "pylintrc",
         "--max-module-lines=3035",
-        get_path("src", "bezier"),
+        get_path("src", "python", "bezier"),
     )
     # Run Pylint over the tests source.
     session.run(
@@ -325,9 +325,13 @@ def lint(session):
 
     if py.path.local.sysfind("clang-format") is not None:
         filenames = glob.glob(get_path("docs", "abi", "*.c"))
-        filenames.append(get_path("src", "bezier", "include", "bezier.h"))
+        filenames.append(
+            get_path("src", "python", "bezier", "include", "bezier.h")
+        )
         filenames.extend(
-            glob.glob(get_path("src", "bezier", "include", "bezier", "*.h"))
+            glob.glob(
+                get_path("src", "python", "bezier", "include", "bezier", "*.h")
+            )
         )
         session.run(
             "clang-format", "-i", "-style=file", *filenames, external=True
@@ -391,10 +395,10 @@ def clean(session):
         get_path("scripts", "macos", "__pycache__"),
         get_path("scripts", "macos", "dist_wheels"),
         get_path("scripts", "macos", "fixed_wheels"),
-        get_path("src", "bezier.egg-info"),
-        get_path("src", "bezier", "__pycache__"),
-        get_path("src", "bezier", "extra-dll"),
-        get_path("src", "bezier", "lib"),
+        get_path("src", "python", "bezier.egg-info"),
+        get_path("src", "python", "bezier", "__pycache__"),
+        get_path("src", "python", "bezier", "extra-dll"),
+        get_path("src", "python", "bezier", "lib"),
         get_path("tests", "__pycache__"),
         get_path("tests", "functional", "__pycache__"),
         get_path("tests", "unit", "__pycache__"),
@@ -404,11 +408,11 @@ def clean(session):
         get_path(".coverage"),
         get_path("*.mod"),
         get_path("*.pyc"),
-        get_path("src", "bezier", "*.pyc"),
-        get_path("src", "bezier", "*.pyd"),
-        get_path("src", "bezier", "*.so"),
-        get_path("src", "bezier", "quadpack", "*.o"),
-        get_path("src", "bezier", "*.o"),
+        get_path("src", "python", "bezier", "*.pyc"),
+        get_path("src", "python", "bezier", "*.pyd"),
+        get_path("src", "python", "bezier", "*.so"),
+        get_path("src", "python", "bezier", "quadpack", "*.o"),
+        get_path("src", "python", "bezier", "*.o"),
         get_path("tests", "*.pyc"),
         get_path("tests", "functional", "*.pyc"),
         get_path("tests", "unit", "*.pyc"),

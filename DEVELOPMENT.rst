@@ -93,7 +93,7 @@ present).
 Dependencies
 ============
 
-Currently, the ``src/bezier/quadpack`` `directory`_ has a subset of Fortran 77
+Currently, the ``src/python/bezier/quadpack`` `directory`_ has a subset of Fortran 77
 subroutines from `QUADPACK`_. These are Public Domain, so they do not
 conflict with the Apache 2.0 license (as far as we know). In addition it
 contains another popular subroutine from NETLIB: ``d1mach`` (which the
@@ -102,7 +102,7 @@ QUADPACK subroutines depend on).
 QUADPACK is used to perform numerical quadrature to compute the length
 of a curve segment.
 
-.. _directory: https://github.com/dhermes/bezier/tree/master/src/bezier/quadpack
+.. _directory: https://github.com/dhermes/bezier/tree/master/src/python/bezier/quadpack
 .. _QUADPACK: https://en.wikipedia.org/wiki/QUADPACK
 
 ******************
@@ -124,10 +124,10 @@ manage dependencies or build extensions):
 
 .. code-block:: console
 
-   $ PYTHONPATH=src/ python2.7 -m pytest tests/unit/
-   $ PYTHONPATH=src/ python3.6 -m pytest tests/unit/
-   $ PYTHONPATH=src/ python3.7 -m pytest tests/unit/
-   $ PYTHONPATH=src/ pypy      -m pytest tests/unit/
+   $ PYTHONPATH=src/python/ python2.7 -m pytest tests/unit/
+   $ PYTHONPATH=src/python/ python3.6 -m pytest tests/unit/
+   $ PYTHONPATH=src/python/ python3.7 -m pytest tests/unit/
+   $ PYTHONPATH=src/python/ pypy      -m pytest tests/unit/
 
 .. _Nox: https://nox.readthedocs.io
 .. _pytest: https://docs.pytest.org
@@ -143,7 +143,7 @@ However, if the tests are run directly from the source tree via
 
 .. code-block:: console
 
-   $ PYTHONPATH=src/ python -m pytest tests/unit/
+   $ PYTHONPATH=src/python/ python -m pytest tests/unit/
 
 some unit tests may be skipped. The unit tests that explicitly exercise the
 binary extension will skip (rather than fail) if the extension isn't
@@ -167,7 +167,7 @@ To run the coverage report locally:
 
    $ nox -s cover
    $ # OR
-   $ PYTHONPATH=src/ python -m pytest \
+   $ PYTHONPATH=src/python/ python -m pytest \
    >   --cov=bezier \
    >   --cov=tests.unit \
    >   tests/unit/ \
@@ -253,10 +253,10 @@ To run the functional tests:
    $ nox -s "functional-pypy"
    $ nox -s  functional  # Run all versions
    $ # OR
-   $ PYTHONPATH=src/ python2.7 -m pytest tests/functional/
-   $ PYTHONPATH=src/ python3.6 -m pytest tests/functional/
-   $ PYTHONPATH=src/ python3.7 -m pytest tests/functional/
-   $ PYTHONPATH=src/ pypy      -m pytest tests/functional/
+   $ PYTHONPATH=src/python/ python2.7 -m pytest tests/functional/
+   $ PYTHONPATH=src/python/ python3.6 -m pytest tests/functional/
+   $ PYTHONPATH=src/python/ python3.7 -m pytest tests/functional/
+   $ PYTHONPATH=src/python/ pypy      -m pytest tests/functional/
 
 .. _functional tests: https://github.com/dhermes/bezier/tree/master/tests/functional
 
@@ -374,7 +374,7 @@ To build the documentation locally:
 
    $ nox -s docs
    $ # OR (from a Python 3.6 or later environment)
-   $ PYTHONPATH=src/ ./scripts/build_docs.sh
+   $ PYTHONPATH=src/python/ ./scripts/build_docs.sh
 
 Documentation Snippets
 ======================
@@ -390,7 +390,7 @@ To run the documentation tests:
 
    $ nox -s doctest
    $ # OR (from a Python 3.6 or later environment)
-   $ PYTHONPATH=src/ sphinx-build -W \
+   $ PYTHONPATH=src/python/ sphinx-build -W \
    >   -b doctest \
    >   -d docs/build/doctrees \
    >   docs \
@@ -413,7 +413,7 @@ To regenerate all the images:
 
    $ nox -s docs_images
    $ # OR (from a Python 3.6 or later environment)
-   $ export MATPLOTLIBRC=docs/ GENERATE_IMAGES=True PYTHONPATH=src/
+   $ export MATPLOTLIBRC=docs/ GENERATE_IMAGES=True PYTHONPATH=src/python/
    $ sphinx-build -W \
    >   -b doctest \
    >   -d docs/build/doctrees \
