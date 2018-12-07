@@ -43,7 +43,7 @@ if(${BUILD_SHARED_LIBS})
                                    ON)
 endif()
 
-target_include_directories(bezier PUBLIC include)
+target_include_directories(bezier PUBLIC $<INSTALL_INTERFACE:include>)
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
   # ``-Wextra`` includes ``no-compare-reals``, but we have comparisons like
@@ -77,6 +77,16 @@ elseif(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
 else()
   message(FATAL_ERROR "gfortran and ifort are the only supported compilers")
 endif()
+
+include(GNUInstallDirs)
+install(TARGETS bezier
+        EXPORT BezierConfig
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(EXPORT BezierConfig DESTINATION share/bezier/cmake)
+export(TARGETS bezier FILE BezierConfig.cmake)
 
 # Restore all Fortran flags.
 set(CMAKE_Fortran_FLAGS ${OLD_CMAKE_Fortran_FLAGS})

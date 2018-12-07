@@ -374,6 +374,39 @@ def check_journal(session, machine):
 
 
 @nox.session(py=DEFAULT_INTERPRETER)
+def build_libbezier(session):
+    external = True
+    if py.path.local.sysfind("cmake") is None:
+        session.install("cmake >= 3.12.0")
+        external = False
+
+    build_dir = get_path("src", "fortran", "build")
+    session.run(os.makedirs, build_dir, exist_ok=True)
+    session.chdir(build_dir)
+
+    install_prefix = os.path.join(session.virtualenv.location, "usr")
+    # Use ``cmake`` to configure the build.
+    session.run(
+        "cmake",
+        "-DCMAKE_INSTALL_PREFIX:PATH={}".format(install_prefix),
+        "-DCMAKE_BUILD_TYPE=Release",
+        get_path("src", "fortran"),
+        external=external,
+    )
+    # Use ``cmake`` to run the build.
+    session.run(
+        "cmake",
+        "--build",
+        build_dir,
+        "--config",
+        "Release",
+        "--target",
+        "install",
+        external=external,
+    )
+
+
+@nox.session(py=DEFAULT_INTERPRETER)
 def fortran_unit(session):
     session.install(DEPS["lcov_cobertura"], DEPS["pycobertura"])
     if py.path.local.sysfind("make") is None:
@@ -428,6 +461,7 @@ def clean(session):
         get_path("scripts", "macos", "__pycache__"),
         get_path("scripts", "macos", "dist_wheels"),
         get_path("scripts", "macos", "fixed_wheels"),
+        get_path("src", "fortran", "build"),
         get_path("src", "python", "bezier.egg-info"),
         get_path("src", "python", "bezier", "__pycache__"),
         get_path("src", "python", "bezier", "extra-dll"),
