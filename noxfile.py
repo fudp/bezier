@@ -379,6 +379,13 @@ def build_libbezier(session):
     if py.path.local.sysfind("cmake") is None:
         session.install("cmake >= 3.12.0")
         external = False
+    session.install("cmake-format")
+    session.run(
+        "cmake-format",
+        "-i",
+        get_path("src", "fortran", "CMakeLists.txt"),
+        get_path("src", "fortran", "quadpack", "CMakeLists.txt"),
+    )
 
     build_dir = get_path("src", "fortran", "build")
     session.run(os.makedirs, build_dir, exist_ok=True)
