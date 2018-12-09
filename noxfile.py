@@ -17,6 +17,7 @@ import sys
 import tempfile
 
 import nox
+import nox.sessions
 import py.path
 
 
@@ -374,7 +375,8 @@ def check_journal(session, machine):
 
 
 @nox.session(py=DEFAULT_INTERPRETER)
-def build_libbezier(session):
+@nox.parametrize("build_type", ["Release", "Debug"])
+def build_libbezier(session, build_type):
     external = True
     if py.path.local.sysfind("cmake") is None:
         session.install("cmake >= 3.12.0")
@@ -391,12 +393,20 @@ def build_libbezier(session):
     session.run(os.makedirs, build_dir, exist_ok=True)
     session.chdir(build_dir)
 
-    install_prefix = os.path.join(session.virtualenv.location, "usr")
+    if session._runner.name == "build_libbezier":
+        virtualenv_location = session.virtualenv.location
+    else:
+        friendly_name = "build_libbezier(build_type={!r})".format(build_type)
+        virtualenv_location = nox.sessions._normalize_path(
+            session._runner.global_config.envdir, friendly_name
+        )
+
+    install_prefix = os.path.join(virtualenv_location, "usr")
     # Use ``cmake`` to configure the build.
     session.run(
         "cmake",
         "-DCMAKE_INSTALL_PREFIX:PATH={}".format(install_prefix),
-        "-DCMAKE_BUILD_TYPE=Release",
+        "-DCMAKE_BUILD_TYPE={}".format(build_type),
         get_path("src", "fortran"),
         external=external,
     )
@@ -406,7 +416,7 @@ def build_libbezier(session):
         "--build",
         build_dir,
         "--config",
-        "Release",
+        build_type,
         "--target",
         "install",
         external=external,
