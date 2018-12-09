@@ -20,10 +20,6 @@ import sys
 import pkg_resources
 import setuptools
 
-import setup_helpers
-import setup_helpers_macos
-import setup_helpers_windows
-
 
 VERSION = "0.9.1.dev1"  # Also in ``codemeta.json`` and ``__init__.py``.
 AUTHOR = "Danny Hermes"  # Also in ``__init__.py``.
@@ -37,17 +33,16 @@ $ python3.7 -m pip install numpy
 $ # OR
 $ conda install numpy
 """
-MISSING_F90_MESSAGE = """\
-No Fortran 90 compiler found.
-
-Skipping Fortran extension speedups.
-"""
 NO_EXTENSIONS_ENV = "BEZIER_NO_EXTENSIONS"
 NO_SPEEDUPS_MESSAGE = """\
 The {} environment variable has been used to explicitly disable the
 building of extension modules.
 """.format(
     NO_EXTENSIONS_ENV
+)
+INSTALL_PREFIX_ENV = "BEZIER_INSTALL_PREFIX"
+NO_INSTALL_PREFIX_MESSAGE = (
+    "The BEZIER_INSTALL_PREFIX environment variable must be set."
 )
 REQUIREMENTS = ("numpy >= 1.15.2", "six >= 1.11.0")
 EXTRAS_REQUIRE = {':python_version<"3.4"': ["enum34"]}
@@ -66,10 +61,14 @@ def is_installed(requirement):
         return True
 
 
-def require_numpy():
-    if not is_installed("numpy>=1.9.0"):
+def numpy_include_dir():
+    if not is_installed("numpy >= 1.9.0"):
         print(NUMPY_MESSAGE, file=sys.stderr)
         sys.exit(1)
+
+    import numpy as np
+
+    return np.get_include()
 
 
 def extension_modules():
@@ -77,13 +76,24 @@ def extension_modules():
         print(NO_SPEEDUPS_MESSAGE, file=sys.stderr)
         return []
 
-    require_numpy()
-    if setup_helpers.BuildFortranThenExt.has_f90_compiler():
-        return setup_helpers.extension_modules()
+    install_prefix = os.environ.get(INSTALL_PREFIX_ENV)
+    if install_prefix is None:
+        print(NO_INSTALL_PREFIX_MESSAGE, file=sys.stderr)
+        sys.exit(1)
 
-    else:
-        print(MISSING_F90_MESSAGE, file=sys.stderr)
-        return []
+    rpath = os.path.join(install_prefix, "lib")
+    extension = setuptools.Extension(
+        "bezier._speedup",
+        [os.path.join("src", "python", "bezier", "_speedup.c")],
+        include_dirs=[
+            numpy_include_dir(),
+            os.path.join(install_prefix, "include"),
+        ],
+        libraries=["bezier"],
+        library_dirs=[rpath],
+        extra_link_args=["-Wl,-rpath={}".format(rpath)],
+    )
+    return [extension]
 
 
 def make_readme():
@@ -118,7 +128,6 @@ def setup():
                 "*.pxd",
                 os.path.join("include", "*.h"),
                 os.path.join("include", "bezier", "*.h"),
-                os.path.join("lib", "*.a"),
                 os.path.join("lib", "*.lib"),
                 os.path.join("extra-dll", "*.dll"),
             ]
@@ -140,18 +149,10 @@ def setup():
             "Programming Language :: Python :: 3.6",
             "Programming Language :: Python :: 3.7",
         ],
-        cmdclass={"build_ext": setup_helpers.BuildFortranThenExt},
     )
 
 
 def main():
-    # Add any "patches" needed for the Fortran compiler.
-    setup_helpers.BuildFortranThenExt.PATCH_FUNCTIONS[:] = [
-        setup_helpers.patch_f90_compiler,
-        setup_helpers_macos.patch_f90_compiler,
-        setup_helpers_windows.patch_f90_compiler,
-    ]
-    setup_helpers_windows.patch_cmd(setup_helpers.BuildFortranThenExt)
     setup()
 
 
