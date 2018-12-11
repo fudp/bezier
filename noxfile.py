@@ -433,7 +433,7 @@ def build_libbezier(session, build_type):
         "-DCMAKE_BUILD_TYPE={}".format(build_type),
     ]
     if ON_APPVEYOR:
-        args.append('-G="MinGW Makefiles"')
+        args.extend(["-G", "MinGW Makefiles"])
     args.append(get_path("src", "fortran"))
 
     session.run(*args, external=external)
