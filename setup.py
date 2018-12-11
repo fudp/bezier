@@ -91,7 +91,7 @@ def extension_modules():
         ],
         libraries=["bezier"],
         library_dirs=[rpath],
-        extra_link_args=["-Wl,-rpath={}".format(rpath)],
+        extra_link_args=["-Wl,-rpath,{}".format(rpath)],
     )
     return [extension]
 
