@@ -10,6 +10,11 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Temporary command to install `cmake`.
+          command: |
+            pip install --upgrade cmake
+            which cmake
+      - run:
           name: Check that all Cython generated files have been updated
           command: nox -s "update_generated(check=True)"
       - run:
