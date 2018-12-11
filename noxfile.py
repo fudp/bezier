@@ -62,6 +62,8 @@ JOURNAL_PATHS = {
     CIRCLE_CI: os.path.join(".circleci", "expected_journal.txt"),
     TRAVIS_MACOS: os.path.join("scripts", "macos", "travis_journal.txt"),
 }
+BUILD_TYPE_DEBUG = "Debug"
+BUILD_TYPE_RELEASE = "Release"
 
 
 def get_path(*names):
@@ -85,8 +87,12 @@ def pypy_setup(local_deps, session):
 def install_bezier(session, py=DEFAULT_INTERPRETER, debug=False, env=None):
     if env is None:
         env = {}
+
     if debug:
-        env["DEBUG"] = "True"
+        install_prefix = build_libbezier(session, BUILD_TYPE_DEBUG)
+    else:
+        install_prefix = build_libbezier(session, BUILD_TYPE_RELEASE)
+    env["BEZIER_INSTALL_PREFIX"] = install_prefix
 
     if ON_APPVEYOR and "2.7" in py and not py.endswith("-32"):
         # NOTE: We must manually specify the Python executable (rather than
@@ -295,6 +301,7 @@ def lint(session):
         "--metadata",
         "--restructuredtext",
         "--strict",
+        env={"BEZIER_NO_EXTENSIONS": "True"},
     )
     # Run flake8 over the code to check import order.
     session.run(
@@ -375,8 +382,33 @@ def check_journal(session, machine):
 
 
 @nox.session(py=DEFAULT_INTERPRETER)
-@nox.parametrize("build_type", ["Release", "Debug"])
+@nox.parametrize("build_type", [BUILD_TYPE_RELEASE, BUILD_TYPE_DEBUG])
 def build_libbezier(session, build_type):
+    current_directory = os.getcwd()
+
+    # Check if this is running via ``nox -s ...``.
+    if session._runner.name == "build_libbezier":
+        virtualenv_location = session.virtualenv.location
+        # Force the virtual environment to be (re)created if it doesn't
+        # have a ``bin`` directory. This can happen if ``build_libbezier()``
+        # is called from another function and the virtual environment
+        # directory is still created.
+        if not os.path.isdir(session.bin):
+            reuse_value = session.virtualenv.reuse_existing
+            session.virtualenv.reuse_existing = False
+            session.virtualenv.create()
+            session.virtualenv.reuse_existing = reuse_value
+    else:
+        friendly_name = "build_libbezier(build_type={!r})".format(build_type)
+        virtualenv_location = nox.sessions._normalize_path(
+            session._runner.global_config.envdir, friendly_name
+        )
+        # Make sure path is relative to the root directory rather
+        # than ``build_dir``.
+        virtualenv_location = os.path.join(
+            current_directory, virtualenv_location
+        )
+
     external = True
     if py.path.local.sysfind("cmake") is None:
         session.install("cmake >= 3.12.0")
@@ -392,14 +424,6 @@ def build_libbezier(session, build_type):
     build_dir = get_path("src", "fortran", "build")
     session.run(os.makedirs, build_dir, exist_ok=True)
     session.chdir(build_dir)
-
-    if session._runner.name == "build_libbezier":
-        virtualenv_location = session.virtualenv.location
-    else:
-        friendly_name = "build_libbezier(build_type={!r})".format(build_type)
-        virtualenv_location = nox.sessions._normalize_path(
-            session._runner.global_config.envdir, friendly_name
-        )
 
     install_prefix = os.path.join(virtualenv_location, "usr")
     # Use ``cmake`` to configure the build.
@@ -421,6 +445,9 @@ def build_libbezier(session, build_type):
         "install",
         external=external,
     )
+    session.chdir(current_directory)
+
+    return install_prefix
 
 
 @nox.session(py=DEFAULT_INTERPRETER)
