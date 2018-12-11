@@ -427,13 +427,16 @@ def build_libbezier(session, build_type):
 
     install_prefix = os.path.join(virtualenv_location, "usr")
     # Use ``cmake`` to configure the build.
-    session.run(
+    args = [
         "cmake",
         "-DCMAKE_INSTALL_PREFIX:PATH={}".format(install_prefix),
         "-DCMAKE_BUILD_TYPE={}".format(build_type),
-        get_path("src", "fortran"),
-        external=external,
-    )
+    ]
+    if ON_APPVEYOR:
+        args.append('-G="MinGW Makefiles"')
+    args.append(get_path("src", "fortran"))
+
+    session.run(*args, external=external)
     # Use ``cmake`` to run the build.
     session.run(
         "cmake",
