@@ -438,7 +438,7 @@ def build_libbezier(session, build_type):
 
     session.run(*args, external=external)
     # Use ``cmake`` to run the build.
-    session.run(
+    args = [
         "cmake",
         "--build",
         build_dir,
@@ -446,8 +446,10 @@ def build_libbezier(session, build_type):
         build_type,
         "--target",
         "install",
-        external=external,
-    )
+    ]
+    if ON_APPVEYOR:
+        args.append("VERBOSE=1")
+    session.run(*args, external=external)
     session.chdir(current_directory)
 
     return install_prefix
