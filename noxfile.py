@@ -433,7 +433,9 @@ def build_libbezier(session, build_type):
         "-DCMAKE_BUILD_TYPE={}".format(build_type),
     ]
     if ON_APPVEYOR:
-        args.extend(["-G", "MinGW Makefiles"])
+        args.extend(
+            ["-G", "MinGW Makefiles", "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"]
+        )
     args.append(get_path("src", "fortran"))
 
     session.run(*args, external=external)
@@ -447,8 +449,6 @@ def build_libbezier(session, build_type):
         "--target",
         "install",
     ]
-    if ON_APPVEYOR:
-        args.append("VERBOSE=1")
     session.run(*args, external=external)
     session.chdir(current_directory)
 
