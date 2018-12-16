@@ -15,6 +15,12 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
+if(WIN32)
+  set(CMAKE_IMPORT_LIBRARY_SUFFIX_Fortran ".lib")
+  set(CMAKE_IMPORT_LIBRARY_PREFIX_Fortran "")
+  set(CMAKE_SHARED_LIBRARY_PREFIX_Fortran "")
+endif()
+
 if(NOT CMAKE_BUILD_TYPE MATCHES "^(Debug|Release)$")
   message(FATAL_ERROR "Debug and Release are the only supported build types")
 endif()
