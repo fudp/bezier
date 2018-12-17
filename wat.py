@@ -3,8 +3,7 @@ import ctypes.util
 import os
 
 
-# PREFIX_DIR = os.path.abspath(os.path.join(".nox", "build_libbezier-build_type-debug", "usr"))
-PREFIX_DIR = os.path.abspath(os.path.join("src", "fortran", "usr"))
+PREFIX_DIR = os.path.abspath(os.path.join(".nox", "build_libbezier-build_type-debug", "usr"))
 
 
 def shared_lib_info():
