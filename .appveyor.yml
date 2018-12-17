@@ -60,7 +60,13 @@ install:
   - python -m nox -s "build_libbezier(build_type='Release')"
 
 test_script:
-  - "python wat.py"
+  - ps: |
+      $NOX_SESSION = $env:NOX_SESSION
+      If ($NOX_SESSION.EndsWith("-32")) {
+        py -3.7-32 wat.py
+      } Else {
+        py -3.7 wat.py
+      }
   - "python -m nox -s \"%NOX_SESSION%\""
 
 cache:
