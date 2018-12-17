@@ -60,7 +60,7 @@ install:
   - python -m nox -s "build_libbezier(build_type='Release')"
 
 test_script:
-  - "python -m wat.py"
+  - "python wat.py"
   - "python -m nox -s \"%NOX_SESSION%\""
 
 cache:
