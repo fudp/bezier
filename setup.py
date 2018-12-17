@@ -15,10 +15,12 @@
 from __future__ import print_function
 
 import os
+import shutil
 import sys
 
 import pkg_resources
 import setuptools
+import setuptools.command.build_ext
 
 
 VERSION = "0.9.1.dev1"  # Also in ``codemeta.json`` and ``__init__.py``.
@@ -49,6 +51,9 @@ EXTRAS_REQUIRE = {':python_version<"3.4"': ["enum34"]}
 DESCRIPTION = (
     u"Helper for B\u00e9zier Curves, Triangles, and Higher Order Objects"
 )
+_IS_WINDOWS = os.name == "nt"
+_EXTRA_DLL = "extra-dll"
+_DLL_FILENAME = "bezier.dll"
 
 
 def is_installed(requirement):
@@ -82,6 +87,9 @@ def extension_modules():
         sys.exit(1)
 
     rpath = os.path.join(install_prefix, "lib")
+    extra_link_args = []
+    if not _IS_WINDOWS:
+        extra_link_args.append("-Wl,-rpath,{}".format(rpath))
     extension = setuptools.Extension(
         "bezier._speedup",
         [os.path.join("src", "python", "bezier", "_speedup.c")],
@@ -91,7 +99,7 @@ def extension_modules():
         ],
         libraries=["bezier"],
         library_dirs=[rpath],
-        extra_link_args=["-Wl,-rpath,{}".format(rpath)],
+        extra_link_args=extra_link_args,
     )
     return [extension]
 
@@ -99,6 +107,28 @@ def extension_modules():
 def make_readme():
     with open(README_FILENAME, "r") as file_obj:
         return file_obj.read()
+
+
+def copy_dll(build_lib):
+    if not _IS_WINDOWS:
+        return
+
+    install_prefix = os.environ.get(INSTALL_PREFIX_ENV)
+    if install_prefix is None:
+        return
+
+    installed_dll = os.path.join(install_prefix, "bin", _DLL_FILENAME)
+    lib_dlls = os.path.join(build_lib, "bezier", _EXTRA_DLL)
+    os.makedirs(lib_dlls)
+    relocated_dll = os.path.join(lib_dlls, _DLL_FILENAME)
+    shutil.copyfile(installed_dll, relocated_dll)
+
+
+class BuildExtWithDLL(setuptools.command.build_ext.build_ext):
+    def run(self):
+        copy_dll(self.build_lib)
+        result = setuptools.command.build_ext.build_ext.run(self)
+        return result
 
 
 def setup():
@@ -149,6 +179,7 @@ def setup():
             "Programming Language :: Python :: 3.6",
             "Programming Language :: Python :: 3.7",
         ],
+        cmdclass={"build_ext": BuildExtWithDLL},
     )
 
 
