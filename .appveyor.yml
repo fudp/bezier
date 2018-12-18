@@ -21,11 +21,11 @@ environment:
 
     # See: https://www.appveyor.com/docs/installed-software/#python
 
+    - NOX_SESSION: "unit-3.6"
+    - NOX_SESSION: "unit-3.6-32"
+    - NOX_SESSION: "unit-3.7-32"
     - NOX_SESSION: "unit-2.7-32"
     - NOX_SESSION: "unit-2.7"
-    - NOX_SESSION: "unit-3.6-32"
-    - NOX_SESSION: "unit-3.6"
-    - NOX_SESSION: "unit-3.7-32"
     - NOX_SESSION: "cover"
     - NOX_SESSION: "functional-3.7"
     - NOX_SESSION: "doctest"

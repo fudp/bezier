@@ -111,10 +111,11 @@ def install_bezier(session, py=DEFAULT_INTERPRETER, debug=False, env=None):
             "pip",
             "install",
             ".",
+            "-vv",
         ]
         session.run(*parts, env=env, external=True)
     else:
-        session.install(".", env=env)
+        session.install(".", "-vv", env=env)
 
 
 @nox.session(py=DEFAULT_INTERPRETER)
