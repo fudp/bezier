@@ -71,4 +71,4 @@ test_script:
 
 cache:
   # Use the appveyor cache to avoid re-downloading large archives.
-  - '%APPDATA%\pip\Cache'
+  - '%LocalAppData%\pip\Cache'
