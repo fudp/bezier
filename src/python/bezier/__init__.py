@@ -37,13 +37,16 @@ from bezier.curve import Curve
 from bezier.curved_polygon import CurvedPolygon
 from bezier.surface import Surface
 
-try:
-    import bezier._speedup  # noqa: F401
+import bezier._speedup  # noqa: F401
 
-    _HAS_SPEEDUP = True
-except ImportError as exc:  # pragma: NO COVER
-    __config__.handle_import_error(exc, "_speedup")
-    _HAS_SPEEDUP = False
+_HAS_SPEEDUP = True
+# try:
+#     import bezier._speedup  # noqa: F401
+#
+#     _HAS_SPEEDUP = True
+# except ImportError as exc:  # pragma: NO COVER
+#     __config__.handle_import_error(exc, "_speedup")
+#     _HAS_SPEEDUP = False
 # NOTE: The ``__version__`` and ``__author__`` are hard-coded here, rather
 #       than using ``pkg_resources.get_distribution("bezier").version``
 #       and related. This is **entirely** to accomodate builds where
