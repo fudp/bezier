@@ -73,3 +73,4 @@ def handle_import_error(caught_exc, name):
 
 
 modify_path()
+print("All done here")

@@ -159,9 +159,10 @@ def unit(session):
     session.install(*local_deps)
     # Install this package.
     install_bezier(session, py=interpreter, debug=True)
-    # Run py.test against the unit tests.
-    run_args = ["py.test"] + session.posargs + [get_path("tests", "unit")]
-    session.run(*run_args)
+    session.run("python", get_path("foo.py"))
+    # # Run py.test against the unit tests.
+    # run_args = ["py.test"] + session.posargs + [get_path("tests", "unit")]
+    # session.run(*run_args)
 
 
 @nox.session(py=DEFAULT_INTERPRETER)
